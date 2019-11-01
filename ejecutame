@@ -1,0 +1,3 @@
+gfortran -g -c RBGS.f90
+gfortran -g RBGS.o main.f90 -o main
+./main

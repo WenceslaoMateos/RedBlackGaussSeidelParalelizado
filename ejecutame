@@ -1,3 +1,5 @@
 gfortran -g -c RBGS.f90
-gfortran -g RBGS.o main.f90 -o main
+gfortran -g -c SELs.f90
+gfortran -g -c arreglos.f90
+gfortran -g arreglos.o SELs.o RBGS.o main.f90 -o main
 ./main

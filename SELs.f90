@@ -359,7 +359,7 @@ function gaussSeidel1D(d, ld, rd, term_ind, xini, tol)
         e1 = errorAbsolutoV(gaussSeidel1D, xant, vNormaM)
         cont = cont + 1
     end do
-    write(*, *) "Iteraciones: ", cont
+    !write(*, *) "Iteraciones: ", cont
 end function
 
 function gaussSeidel2D(d, ud, bd, ld, rd, term_ind, columnas, xini, tol)

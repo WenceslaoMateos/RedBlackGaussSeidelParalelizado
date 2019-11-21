@@ -5,7 +5,7 @@ program main
     implicit none
     
     integer(4), parameter :: orden=4
-    real(8), dimension(1:orden) :: d, term_ind, xini, res, ld, rd
+    real(8), dimension(1:orden) :: d, term_ind, xini, res, ld, rd, res1
     real(8) tol
 
     !Elementos de prueba para Gauss-Seidel
@@ -27,10 +27,13 @@ program main
 
     !Resultados de Gauss-Seidel
     res = RBGS1D(d, ld, rd, term_ind, xini, tol)
+    res1 = gaussSeidel1D(d, ld, rd, term_ind, xini, tol)
 
     if (this_image() == 1) then 
-        !write(*, *) 'Resultado de Gauss-Seidel'
+        write(*, *) 'Resultado de Red-Black Gauss-Seidel'
         call mostrarVector(res)
+        write(*, *) 'Resultado de Gauss-Seidel Posta'
+        call mostrarVector(res1)
     end if
     
 end program main

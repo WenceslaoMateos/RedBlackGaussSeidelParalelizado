@@ -5,11 +5,11 @@ program main
     implicit none
     
     integer(4), parameter :: orden=4
-    real(8), dimension(1:orden), codimension[*] :: d, term_ind, xini, res, ld, rd
+    real(8), dimension(1:orden) :: d, term_ind, xini, res, ld, rd
     real(8) tol
 
     !Elementos de prueba para Gauss-Seidel
-    xini = 0.
+    xini = [1., 2., 3., 4.]
     tol = 1e-5
 
     !Matriz y términos independientes para utilizar (ejemplo de diapositivas Crank-Nicholson)
@@ -22,13 +22,15 @@ program main
     d = 2.04
     ld = [0., -1., -1., -1.]
     rd = [-1., -1., -1., 0.]
+    !res = gaussSeidel1D(d, ld, rd, term_ind, xini, tol)
     !resultados correctos [ 65.9698, 93.7784, 124.5382, 159.4795]
 
     !Resultados de Gauss-Seidel
     res = RBGS1D(d, ld, rd, term_ind, xini, tol)
 
-    sync all
-    write(*, *) 'Resultado de Gauss-Seidel'
-    call mostrarVector(res)
+    if (this_image() == 1) then 
+        !write(*, *) 'Resultado de Gauss-Seidel'
+        call mostrarVector(res)
+    end if
     
 end program main

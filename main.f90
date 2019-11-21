@@ -4,27 +4,31 @@ program main
     use SELs
     implicit none
     
-    integer(4), parameter :: orden = 4
-    real(8), dimension(orden, orden) :: matriz
-    real(8), dimension(orden, 1) :: term_indAUX, xini
-    real(8), dimension(orden) :: term_ind
+    integer(4), parameter :: orden=4
+    real(8), dimension(1:orden), codimension[*] :: d, term_ind, xini, res, ld, rd
     real(8) tol
 
     !Elementos de prueba para Gauss-Seidel
-    xini(:, 1) = [0., 0., 0., 0.]
+    xini = 0.
     tol = 1e-5
 
-    !Matriz y términos independientes para utilizar
-    matriz(1, :) = [0., -3., 2., 6.] 
-    matriz(2, :) = [2., 3., 2., -1.] 
-    matriz(3, :) = [-3., -1., 3., 1.] 
-    matriz(4, :) = [1., 2., -3., -1.] 
-    term_ind = [-8., -8., 0., 0.]
+    !Matriz y términos independientes para utilizar (ejemplo de diapositivas Crank-Nicholson)
+    !term_ind = [2., 4., 4., 22.]
+    !d = 4.
+    !ld = [0., -1., -1., -1.]
+    !rd = [-1., -1., -1., 0.]
+
+    term_ind = [40.8, 0.8, 0.8, 200.8]
+    d = 2.04
+    ld = [0., -1., -1., -1.]
+    rd = [-1., -1., -1., 0.]
+    !resultados correctos [ 65.9698, 93.7784, 124.5382, 159.4795]
 
     !Resultados de Gauss-Seidel
-    term_indAUX = gaussSeidel(matriz, term_indAUX, xini, tol)
-    write(*, *) 'Resultado de Gauss-Seidel'
-    call mostrarVector(term_indAUX(:, 1))
+    res = RBGS1D(d, ld, rd, term_ind, xini, tol)
 
+    sync all
+    write(*, *) 'Resultado de Gauss-Seidel'
+    call mostrarVector(res)
     
 end program main

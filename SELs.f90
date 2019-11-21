@@ -16,6 +16,13 @@ module SELs
             real(8) solucionDirecto(size(term_ind, dim=1), size(term_ind, dim=2))
         end function
     end interface
+
+    abstract interface
+        function vNorma(arreglo)
+            real(8), dimension(:), intent(in) :: arreglo
+            real(8) vNorma
+        end function
+    end interface
     
     abstract interface
         function mNorma(matriz)
@@ -331,6 +338,126 @@ function relajacion(matriz, term_ind, xini, tol)
     write(*, *) "Itereaciones: ", cont
 end function relajacion
 
+function gaussSeidel1D(d, ld, rd, term_ind, xini, tol)
+    real(8), dimension(:), intent(in) :: d, ld, rd, term_ind, xini
+    real(8), intent(in) :: tol
+    real(8), dimension(size(term_ind)) :: gaussSeidel1D, xant
+    real(8) e1
+    integer(4) i, cont, orden
+
+    gaussSeidel1D = xini
+    orden = size(xini)
+    e1 = tol + 1
+    cont = 0
+    do while (e1 > tol)
+        xant = gaussSeidel1D
+        gaussSeidel1D(1) = (term_ind(1) - rd(1) * gaussSeidel1D(2)) / d(1)
+        do i = 2, orden - 1
+            gaussSeidel1D(i) = (term_ind(i) - ld(i) * gaussSeidel1D(i-1) - rd(i) * gaussSeidel1D(i+1)) / d(i)
+        end do
+        gaussSeidel1D(orden) = (term_ind(orden) - ld(orden) * gaussSeidel1D(orden-1)) / d(orden)
+        e1 = errorAbsolutoV(gaussSeidel1D, xant, vNormaM)
+        cont = cont + 1
+    end do
+    write(*, *) "Iteraciones: ", cont
+end function
+
+function gaussSeidel2D(d, ud, bd, ld, rd, term_ind, columnas, xini, tol)
+    real(8), dimension(:), intent(in) :: d, ud, bd, ld, rd, term_ind, xini
+    real(8), intent(in) :: tol
+    real(8), dimension(size(term_ind)) :: gaussSeidel2D, xant
+    real(8) e1
+    integer(4) i, orden, cont, columnas, filas
+
+    gaussSeidel2D = xini
+    orden = size(gaussSeidel2D, dim=1)
+    e1 = tol + 1
+    cont = 0
+    filas = orden / columnas
+    do while (e1 > tol)
+        xant = gaussSeidel2D
+        do i = 1, orden
+            gaussSeidel2D(i) = term_ind(i)
+            ! tiene izquierda
+            if (mod(i, columnas) /= 1) then
+                gaussSeidel2D(i) = gaussSeidel2D(i) - ld(i) * gaussSeidel2D(i-1)
+            end if
+            ! tiene derecha
+            if (mod(i, columnas) /= 0) then
+                gaussSeidel2D(i) = gaussSeidel2D(i) - rd(i) * gaussSeidel2D(i+1)
+            end if
+            ! tiene arriba
+            if (i > columnas) then
+                gaussSeidel2D(i) = gaussSeidel2D(i) - ud(i) * gaussSeidel2D(i-columnas)
+            end if
+            ! tiene abajo
+            if (i / columnas + 1 < filas) then
+                gaussSeidel2D(i) = gaussSeidel2D(i) - bd(i) * gaussSeidel2D(i+columnas)
+            end if
+            gaussSeidel2D(i) = gaussSeidel2D(i) / d(i)
+        end do
+        e1 = errorAbsolutoV(gaussSeidel2D, xant, vNormaM)
+        cont = cont + 1
+    end do
+    write(*, *) "Iteraciones: ", cont
+end function gaussSeidel2D
+
+function gaussSeidelMatricial(d, ud, bd, ld, rd, term_ind, xini, tol)
+    real(8), dimension(:, :), intent(in) :: d, ud, bd, ld, rd, term_ind, xini
+    real(8), intent(in) :: tol
+    real(8), dimension(size(xini, dim=1), size(xini, dim=2)) :: gaussSeidelMatricial, xant
+    real(8) e1
+    integer(4) i, j, orden, cont, columnas, filas
+
+    gaussSeidelMatricial = xini
+    e1 = tol + 1
+    cont = 0
+    filas = size(xini, dim=1)
+    columnas = size(xini, dim=2)
+    do while(e1 > tol)
+        xant = gaussSeidelMatricial
+
+        ! Primera fila
+        gaussSeidelMatricial(1, 1) = (term_ind(1, 1) - rd(1, 1)*gaussSeidelMatricial(1, 2) &
+            - bd(1, 1)*gaussSeidelMatricial(2, 1)) / d(1, 1)
+        do j = 2, columnas - 1
+            gaussSeidelMatricial(1, j) = (term_ind(1, j) - ld(1, j)*gaussSeidelMatricial(1, j-1) &
+                - rd(1, j)*gaussSeidelMatricial(1, j+1) - bd(1, j)*gaussSeidelMatricial(2, j)) / d(1, j)
+        end do
+        gaussSeidelMatricial(1, columnas) = (term_ind(1, columnas) - ld(1, columnas)*gaussSeidelMatricial(1, columnas-1) &
+            - bd(1, columnas)*gaussSeidelMatricial(2, columnas)) / d(1, columnas)
+
+        ! Filas intermedias
+        do i = 2, filas - 1
+            gaussSeidelMatricial(i, 1) = (term_ind(i, 1) - rd(i, 1)*gaussSeidelMatricial(i, 2) &
+                - ud(i, 1)*gaussSeidelMatricial(i-1, 1) - bd(i, 1)*gaussSeidelMatricial(i+1, 1)) / d(i, 1)
+            do j = 2, columnas - 1
+                gaussSeidelMatricial(i, j) = (term_ind(i, j) &
+                    - ld(i, j)*gaussSeidelMatricial(i, j-1) - rd(i, j)*gaussSeidelMatricial(i, j+1) &
+                    - ud(i, j)*gaussSeidelMatricial(i-1, j) - bd(i, j)*gaussSeidelMatricial(i+1, j)) / d(i, j)
+            end do
+            gaussSeidelMatricial(i, columnas) = (term_ind(i, columnas) - ld(i, columnas)*gaussSeidelMatricial(i, columnas-1) &
+                - ud(i, columnas)*gaussSeidelMatricial(i-1, columnas) - bd(i, columnas)*gaussSeidelMatricial(i+1, columnas)) &
+                / d(i, columnas)
+        end do
+
+        ! Ultima fila
+        gaussSeidelMatricial(filas, 1) = (term_ind(filas, 1) - rd(filas, 1)*gaussSeidelMatricial(filas, 2) &
+            - ud(filas, 1)*gaussSeidelMatricial(filas-1, 1)) / d(filas, 1)
+        do j = 2, columnas - 1
+            gaussSeidelMatricial(filas, j) = (term_ind(filas, j) - ld(filas, j)*gaussSeidelMatricial(filas, j-1) &
+                - rd(filas, j)*gaussSeidelMatricial(filas, j+1) - ud(filas, j)*gaussSeidelMatricial(filas-1, j)) / d(filas, j)
+        end do
+        gaussSeidelMatricial(filas, columnas) = (term_ind(filas, columnas) &
+            - ld(filas, columnas)*gaussSeidelMatricial(filas, columnas-1) &
+            - ud(filas, columnas)*gaussSeidelMatricial(filas-1, columnas)) / d(filas, columnas)
+
+        e1 = errorAbsoluto(gaussSeidelMatricial, xant, mNormaM)
+        cont = cont + 1
+    end do
+    write(*, *) "Iteraciones: ", cont
+end function gaussSeidelMatricial
+
 function identidad(orden)
     integer(4), intent(in) :: orden
     integer(4) i
@@ -402,6 +529,22 @@ function condicion(matriz, norma)
 
     condicion = norma(matriz) * norma(matrizInversa(matriz))
 end function condicion
+
+function errorAbsolutoV(V, Vper, norma)
+    real(8), dimension(:), intent(in) :: V, Vper
+    procedure(vNorma) :: norma
+    real(8) errorAbsolutoV
+
+    errorAbsolutoV = norma(V - Vper)
+end function errorAbsolutoV
+
+function errorRelativoV(V, Vper, norma)
+    real(8), dimension(:), intent(in) :: V, Vper
+    procedure(vNorma) :: norma
+    real(8) errorRelativoV
+
+    errorRelativoV = errorAbsolutoV(V, Vper, norma) / norma(V)
+end function errorRelativoV
 
 function errorAbsoluto(A, Aper, norma)
     real(8), dimension(:, :), intent(in) :: A, Aper

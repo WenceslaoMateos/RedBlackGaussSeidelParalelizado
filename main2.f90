@@ -9,24 +9,32 @@ program main
     real(8) tol
     integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden, remanente
 
-    im_act = this_image()
-    im_tot = num_images()
+    im_act = this_image() ! Mi imagen
+    im_tot = num_images() ! Cantidad total de imagenes
     tol = 1e-5
 
+    ! La imagen 1 se encarga de la carga de datos
     if (im_act == 1) then
+        ! Estos son los unicos datos que se deben tocar para modificar el programa
         xini_local = [1., 2., 3., 4.]
         term_local = [40.8, 0.8, 0.8, 200.8]
         d_local = [2.04, 2.04, 2.04, 2.04]
         ld_local = [0., -1., -1., -1.]
         rd_local = [-1., -1., -1., 0.]
+
         orden = size(term_local)
         tam_divisiones = ceiling(real(orden) / real(im_tot))
-        call co_broadcast(tam_divisiones, 1)
+        ! Hay que propagar la cantidad de divisiones a todas las imagenes
+        do i = 2, im_tot
+            tam_divisiones[i] = tam_divisiones
+        end do
     end if
 
+    ! No funciona si no todas las imagenes tienen el mismo tam_divisiones
     allocate(d(tam_divisiones)[*], term_ind(tam_divisiones)[*], xini(tam_divisiones)[*], &
         res(tam_divisiones)[*], ld(tam_divisiones)[*], rd(tam_divisiones)[*])
     
+    ! La imagen 1 se encarga de distribuir los datos
     if (im_act == 1) then
         inicio = 1
         fin = tam_divisiones
@@ -40,6 +48,7 @@ program main
             fin = fin + tam_divisiones
         end do
 
+        ! La última imagen caso puede quedar con remanente
         remanente = mod(orden, tam_divisiones)
         if (remanente /= 0) then
             inicio = orden - remanente + 1
@@ -48,6 +57,9 @@ program main
             rd(1:remanente)[im_tot] = rd_local(inicio:)
             xini(1:remanente)[im_tot] = xini_local(inicio:)
             term_ind(1:remanente)[im_tot] = term_local(inicio:)
+
+            ! Estos son los valores para que las componentes sobrantes no interfieran
+            ! en la resolucion del metodo
             do i = remanente + 1, tam_divisiones
                 d(i)[im_tot] = 1.
                 ld(i)[im_tot] = 0.
@@ -62,14 +74,14 @@ program main
             xini(:)[i] = xini_local(inicio:fin)
             term_ind(:)[i] = term_local(inicio:fin)
         end if
+
+        deallocate(d_local, term_local, xini_local, ld_local, rd_local)
     end if
 
     sync all
-    write(*, *) xini
     call RBGSlineal(res, d, ld, rd, term_ind, xini, tol)
 
-    sync all
-    if (this_image() == 1) then 
+    if (im_act == 1) then 
         write(*, *) 'Resultado de Red-Black Gauss-Seidel'
         do i = 1, im_tot
             call mostrarVector(res(:)[i])

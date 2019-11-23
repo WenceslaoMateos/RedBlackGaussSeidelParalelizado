@@ -9,7 +9,7 @@ program tpfinal
 !~    Se puede descomentar la linea 95 para evitar redundancia en elipticas
 !~    Dejar comentado armarVector o armarMatriz (que solo uno se ejecute)
     INTEGER, PARAMETER :: longitud_semilla = 33
-    integer, parameter :: orden = 100000000
+    integer, parameter :: orden = 100
     integer, parameter :: n = 4, m = 4
     integer, allocatable :: seed(:)
     integer longitud, filas, columnas

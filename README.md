@@ -6,6 +6,6 @@ Simplemente en la ventana de comandos poner:
 > ./ejecutame.sh main.f90
 
 ### Autores
-- Fantini, Mariano @Actyra
-- Mateos, Wenceslao @WenceslaoMateos
-- Pablos, Braulio @Bravlin
+- Fantini, Mariano
+- Mateos, Wenceslao
+- Pablos, Braulio

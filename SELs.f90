@@ -195,10 +195,8 @@ function reduccionCrout(matriz)
  end function
 
 function thomas(u_o, d_o, l_o, term_ind)
-    real(8), dimension(:,:), intent(in) :: term_ind
-    real(8), dimension(:), intent(in) :: u_o, d_o, l_o
-    real(8), dimension(size(term_ind, dim=1), size(term_ind, dim=2)) :: thomas
-    real(8), dimension(size(term_ind, dim=1)) :: u, d, l
+    real(8), dimension(:), intent(in) :: u_o, d_o, l_o, term_ind
+    real(8), dimension(size(term_ind, dim=1)) :: thomas, u, d, l
     integer(4) filas, i
 
     filas = size(term_ind, DIM=1)
@@ -208,16 +206,16 @@ function thomas(u_o, d_o, l_o, term_ind)
     thomas = term_ind
     do i = 1, filas - 1
         u(i) = u(i) / d(i)
-        thomas(i, :) = thomas(i, :) / d(i)
+        thomas(i) = thomas(i) / d(i)
         d(i) = 1.0
         d(i + 1) = d(i + 1) - l(i + 1) * u(i)
-        thomas(i + 1, :) = thomas(i + 1, :) - l(i + 1) * thomas(i, :)
+        thomas(i + 1) = thomas(i + 1) - l(i + 1) * thomas(i)
         l(i + 1) = 0.0
     end do
 
-    thomas(filas, :) = thomas(filas, :) / d(filas)
+    thomas(filas) = thomas(filas) / d(filas)
     do i = filas - 1, 1, -1
-        thomas(i, :) = thomas(i, :) - u(i) * thomas(i + 1, :) / d(i)
+        thomas(i) = thomas(i) - u(i) * thomas(i + 1) / d(i)
     end do
 end function thomas
 
@@ -359,7 +357,7 @@ function gaussSeidel1D(d, ld, rd, term_ind, xini, tol)
         e1 = errorAbsolutoV(gaussSeidel1D, xant, vNormaM)
         cont = cont + 1
     end do
-    write(*, *) "Iteraciones: ", cont
+    !write(*, *) "Iteraciones: ", cont
 end function
 
 function gaussSeidel2D(d, ud, bd, ld, rd, term_ind, columnas, xini, tol)

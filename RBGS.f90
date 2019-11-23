@@ -212,9 +212,9 @@ contains
             cont = cont + 1
         end do
         
-        if (im_act == 1) then
-            write(*, *) "Iteraciones: ", cont
-        end if
+        ! if (im_act == 1) then
+        !     write(*, *) "Iteraciones: ", cont
+        ! end if
         deallocate(xant, error_local)
     end subroutine RBGSlineal
 

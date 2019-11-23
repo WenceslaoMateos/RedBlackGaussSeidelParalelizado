@@ -47,7 +47,7 @@ program main
         t_normal = t_normal/cant
         !write(*, *) 'Resultado de Gauss-Seidel Posta'
         !call mostrarVector(res1)
-        write(*, *) 'Tiempo Gauss-Seidel = ', t_normal
+        write(*, '(A,F10.7)') 'Tiempo Gauss-Seidel = ', t_normal
 
         t_thomas = 0
         do i = 1, cant
@@ -59,7 +59,7 @@ program main
         t_thomas = t_thomas/cant
         !write(*, *) 'Resultado de Gauss-Seidel Posta'
         !call mostrarVector(res1)
-        write(*, *) 'Tiempo Thomas = ', t_thomas
+        write(*, '(A,F10.7)') 'Tiempo Thomas = ', t_thomas
 
     end if
     
@@ -111,7 +111,6 @@ program main
         end if
         
         deallocate(d_local, term_local, xini_local, ld_local, rd_local)
-        write(*, *)
     end if
     
     t_concurrente = 0
@@ -130,9 +129,10 @@ program main
         !     !call mostrarVector(res(:)[i])
         ! end do
         t_concurrente = t_concurrente /cant
-        write(*, *) 'Tiempo RBGS = ', t_concurrente
-        write(*, *) 'Optimización GS vs RBGS = ', t_normal/t_concurrente *100 - 100,'%'
-        write(*, *) 'Optimización Thomas vs RBGS= ', t_thomas/t_concurrente *100 - 100,'%'
+        write(*, '(A,F10.7)') 'Tiempo RBGS = ', t_concurrente
+        write(*, *)
+        write(*, '(A,F12.7,A)') 'Optimización GS vs RBGS = ', (t_normal/t_concurrente *100 - 100),'%'
+        write(*, '(A,F12.7,A)') 'Optimización Thomas vs RBGS = ', (t_thomas/t_concurrente *100 - 100),'%'
     end if
     
     deallocate(res, d, ld, rd, term_ind, xini)

@@ -1,4 +1,5 @@
 program tpfinal
+    use moduloArchivos
 
 !~ Generador de casos de prueba
 !~ Si se quiere generar datos para parabolicas, modificar 'orden' y 'nombreArchivoParabolica'
@@ -11,6 +12,7 @@ program tpfinal
     integer, parameter :: orden = 100
     integer, parameter :: n = 4, m = 4
     integer, allocatable :: seed(:)
+    integer longitud, filas, columnas
     real, allocatable :: vector(:), matriz(:,:)
     character(len = 20) :: nombreArchivoParabolica, nombreArchivoEliptica
     
@@ -22,16 +24,23 @@ program tpfinal
     call random_seed(put=seed)
     call random_seed(get=seed)
     
-    allocate(vector(orden))
-    allocate(matriz(n,m))
+!~     allocate(vector(orden))
+!~     allocate(matriz(n,m))
 !~     Si orden=100 -> tamanio vector = 100
 !~     call armarVector(vector, orden)
-    call armarMatriz(matriz, n, m)
+!~     call armarMatriz(matriz, n, m)
 
 !~     call escribeArchivoVector(vector, orden, nombreArchivoParabolica)
-    call escribeArchivoMatriz(matriz, n, m, nombreArchivoEliptica)
+!~     call escribeArchivoMatriz(matriz, n, m, nombreArchivoEliptica)
     
-    deallocate(vector)
+!~     call leeArchivoVector(vector, longitud, nombreArchivoParabolica)
+    call leeArchivoMatriz(matriz, filas, columnas, nombreArchivoEliptica)
+    
+    write(*,*) matriz
+    
+    if (allocated(vector)) then
+        deallocate(vector)
+    end if
     deallocate(seed)
 end program
 
@@ -67,33 +76,4 @@ subroutine armarMatriz(matriz, n, m)
         CALL random_number(x)
         matriz(n,i) = x
     enddo
-end subroutine
-
-subroutine escribeArchivoVector(vector, n, nombreArchivo)
-    real vector(n)
-    integer n
-    character(len = 20) :: nombreArchivo
-    
-    open (1, file = nombreArchivo, status='replace')
-    write(1,*) n
-    write(1,*) vector(:)
-    close (1, status='keep')
-end subroutine
-
-subroutine escribeArchivoMatriz(matriz, n, m, nombreArchivo)
-    real matriz(n, m)
-    integer n
-    character(len = 20) :: nombreArchivo
-    
-    open (1, file = nombreArchivo, status='replace')
-    write(1,*) n, m
-    write(1,*) matriz(1,:)
-    do i=2, n-1
-        write(1,*) matriz(i,:)
-!~         Puedo evitar la redundancia si solo escribo los bordes
-!~         write(1,*) matriz(i,1)
-!~         write(1,*) matriz(i,m)
-    end do
-    write(1,*) matriz(n,:)
-    close (1, status='keep')
 end subroutine

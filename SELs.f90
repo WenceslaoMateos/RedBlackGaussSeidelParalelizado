@@ -571,4 +571,46 @@ function cotaErrorRelativo(A, Aper, b, bper, norma)
     cotaErrorRelativo = (cond / (1 - cond*erA)) * (erA + erb)
 end function cotaErrorRelativo
 
+! Funcion de refinamiento para el metodo Thomas
+function refinamiento_thomas(ld_local, d_local, rd_local, term_local, tol)
+    real(8), dimension(:), intent(in) :: ld_local, d_local, rd_local, term_local
+    real(8), dimension(size(term_local, dim=1)) :: refinamiento_thomas, res
+    real(8), intent(in) :: tol
+    real(8) error
+    integer(4) n
+
+    n = ubound(term_local, 1)
+    refinamiento_thomas = thomas(ld_local, d_local, rd_local, term_local)
+    res = vectorResiduo(ld_local, d_local, rd_local, refinamiento_thomas, term_local, n)
+    error = normaVector(res, n)
+    do while (error >= tol)
+        refinamiento_thomas = refinamiento_thomas - thomas(ld_local, d_local, rd_local, res)
+        res = vectorResiduo(ld_local, d_local, rd_local, refinamiento_thomas, term_local, n)
+        error = normaVector(res, n)
+    end do
+end function refinamiento_thomas
+
+! Calculo del vector residuo para Thomas
+function vectorResiduo(ld, d, rd, vectorResultado, b, n)
+    integer(4), intent(in) :: n
+    real(8), intent(in) :: ld(n), d(n), rd(n), vectorResultado(n), b(n)
+    real(8) vectorResiduo(n)
+    integer(4) i
+    
+    vectorResiduo = 0.
+    vectorResiduo(1) = d(1)*vectorResultado(1) + rd(2)*vectorResultado(2) - b(1)
+    do i = 2, n - 1
+        vectorResiduo(i) = ld(i)*vectorResultado(i-1) + d(i)*vectorResultado(i) + rd(i)*vectorResultado(i+1) - b(i)
+    enddo
+    vectorResiduo(n) = ld(n-1)*vectorResultado(n-1) + d(n)*vectorResultado(n) - b(n)
+end function
+
+function normaVector(vector, n)
+    integer(4), intent(in) :: n
+    real(8), intent(in) :: vector(n)
+    real(8) normaVector
+    
+    normaVector = maxval(abs(vector))
+end function
+
 end module SELs

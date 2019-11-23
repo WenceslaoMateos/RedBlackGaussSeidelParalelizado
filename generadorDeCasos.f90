@@ -9,11 +9,11 @@ program tpfinal
 !~    Se puede descomentar la linea 95 para evitar redundancia en elipticas
 !~    Dejar comentado armarVector o armarMatriz (que solo uno se ejecute)
     INTEGER, PARAMETER :: longitud_semilla = 33
-    integer, parameter :: orden = 100
+    integer, parameter :: orden = 100000000
     integer, parameter :: n = 4, m = 4
     integer, allocatable :: seed(:)
     integer longitud, filas, columnas
-    real, allocatable :: vector(:), matriz(:,:)
+    real(8), allocatable :: vector(:), matriz(:,:)
     character(len = 20) :: nombreArchivoParabolica, nombreArchivoEliptica
     
     nombreArchivoParabolica = "parabolica1.dat"
@@ -24,17 +24,20 @@ program tpfinal
     call random_seed(put=seed)
     call random_seed(get=seed)
     
-!~     allocate(vector(orden))
+    allocate(vector(orden))
 !~     allocate(matriz(n,m))
 !~     Si orden=100 -> tamanio vector = 100
 !~     call armarVector(vector, orden)
 !~     call armarMatriz(matriz, n, m)
 
-!~     call escribeArchivoVector(vector, orden, nombreArchivoParabolica)
+    call armarVector(vector, orden)
+    call escribeArchivoVector(vector, orden, 'Datos/term.dat')
+    call armarVector(vector, orden)
+    call escribeArchivoVector(vector, orden, 'Datos/xini.dat')
 !~     call escribeArchivoMatriz(matriz, n, m, nombreArchivoEliptica)
     
 !~     call leeArchivoVector(vector, longitud, nombreArchivoParabolica)
-    call leeArchivoMatriz(matriz, filas, columnas, nombreArchivoEliptica)
+!~     call leeArchivoMatriz(matriz, filas, columnas, nombreArchivoEliptica)
     
     write(*,*) matriz
     
@@ -47,8 +50,8 @@ end program
 subroutine armarVector(vector, n)
     integer i
     integer n
-    real x
-    real vector(n)
+    real(8) x
+    real(8) vector(n)
     
     do i=1, n
         CALL random_number(x)
@@ -58,8 +61,8 @@ end subroutine
 
 subroutine armarMatriz(matriz, n, m)
     integer n, m
-    real matriz(n,m)
-    real x
+    real(8) matriz(n,m)
+    real(8) x
     
     matriz=0
     do i=1, m

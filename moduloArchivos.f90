@@ -4,9 +4,9 @@ module moduloArchivos
     contains
   
     subroutine escribeArchivoVector(vector, n, nombreArchivo)
-        real vector(n)
+        real(8) vector(n)
         integer n
-        character(len = 20) :: nombreArchivo
+        character(len = *) :: nombreArchivo
         
         open (1, file = nombreArchivo, status='replace')
         write(1,*) n
@@ -16,8 +16,8 @@ module moduloArchivos
 
     subroutine escribeArchivoMatriz(matriz, n, m, nombreArchivo)
         integer n, m, i
-        real matriz(n, m)
-        character(len = 20) :: nombreArchivo
+        real(8) matriz(n, m)
+        character(len = *) :: nombreArchivo
         
         open (1, file = nombreArchivo, status='replace')
         write(1,*) n, m
@@ -34,8 +34,8 @@ module moduloArchivos
 
     subroutine leeArchivoVector(vector, n, nombreArchivo)
         integer n
-        real, allocatable :: vector(:)
-        character(len = 20) :: nombreArchivo
+        real(8), allocatable :: vector(:)
+        character(len = *) :: nombreArchivo
         logical :: existeArchivo
         
         if (.not. allocated(vector)) then
@@ -57,8 +57,8 @@ module moduloArchivos
 
     subroutine leeArchivoMatriz(matriz, n, m, nombreArchivo)
         integer n, m, i
-        real, allocatable :: matriz(:,:)
-        character(len = 20) :: nombreArchivo
+        real(8), allocatable :: matriz(:,:)
+        character(len = *) :: nombreArchivo
         logical :: existeArchivo
 
         if (.not. allocated(matriz)) then

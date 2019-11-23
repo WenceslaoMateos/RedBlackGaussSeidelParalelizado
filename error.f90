@@ -1,18 +1,13 @@
-error = normaVectorResiduoConVector(matrizInicial, vectorSumatoriaFila, n, m)
-
-real function normaVectorResiduoConVector(matrizInicial, vectorResultado, n, m)
-    integer n, m
-    real matrizInicial(n, m), vectorResultado(n)
+real function normaVectorResiduoConVector(ld, d, rd, vectorResultado, b, n)
+    integer n
+    real ld(n), d(n), rd(n), vectorResultado(n), b(n)
     integer i, j
     real vectorR(n)
     
     vectorR = 0
-    
+  
     do i=1, n
-      do j=1, n
-        vectorR(i) = vectorR(i) + matrizInicial(i,j)*vectorResultado(j)
-      enddo
-      vectorR(i) = vectorR(i) - matrizInicial(i,m)
+      vectorR(i) = ld(i)*vectorResultado(i) + d(i)*vectorResultado(i) + rd(i)*vectorResultado(i) - b(i)
     enddo
     
     normaVectorResiduoConVector = normaVector(vectorR, n)

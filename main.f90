@@ -7,12 +7,13 @@ program main
     
     real(8), dimension(:), codimension[:], allocatable :: d, term_ind, xini, res, ld, rd
     real(8), dimension(:), allocatable :: d_local, term_local, xini_local, ld_local, rd_local, res1
-    real(8) tol, t_ini, t_fin, t_normal, t_concurrente, t_resultado
-    integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden, remanente, n
+    real(8) tol, t_ini, t_fin, t_normal, t_concurrente, t_resultado, t_thomas
+    integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden, remanente, n, cant
 
     im_act = this_image() ! Mi imagen
     im_tot = num_images() ! Cantidad total de imagenes
     tol = 1e-5
+    cant = 50
 
     ! La imagen 1 se encarga de la carga de datos
     if (im_act == 1) then
@@ -36,14 +37,29 @@ program main
         do i = 2, im_tot
             tam_divisiones[i] = tam_divisiones
         end do
-
-        call CPU_TIME(t_ini)
-        res1 = gaussSeidel1D(d_local, ld_local, rd_local, term_local, xini_local, tol)
-        call CPU_TIME(t_fin)
+        t_normal = 0
+        do i = 1, cant
+            call CPU_TIME(t_ini)
+            res1 = gaussSeidel1D(d_local, ld_local, rd_local, term_local, xini_local, tol)
+            call CPU_TIME(t_fin)
+            t_normal = t_normal + t_fin-t_ini
+        end do
+        t_normal = t_normal/cant
         !write(*, *) 'Resultado de Gauss-Seidel Posta'
         !call mostrarVector(res1)
-        t_normal = t_fin-t_ini
-        write(*, *) 'Tiempo = ', t_normal
+        write(*, *) 'Tiempo Gauss-Seidel = ', t_normal
+
+        t_thomas = 0
+        do i = 1, cant
+            call CPU_TIME(t_ini)
+            res1 = thomas(d_local, ld_local, rd_local, term_local)
+            call CPU_TIME(t_fin)
+            t_thomas = t_thomas + t_fin-t_ini
+        end do
+        t_thomas = t_thomas/cant
+        !write(*, *) 'Resultado de Gauss-Seidel Posta'
+        !call mostrarVector(res1)
+        write(*, *) 'Tiempo Thomas = ', t_thomas
 
     end if
     
@@ -98,21 +114,25 @@ program main
         write(*, *)
     end if
     
-
-    sync all
-    call CPU_TIME(t_ini)
-    call RBGSlineal(res, d, ld, rd, term_ind, xini, tol)
-    sync all
-    call CPU_TIME(t_fin)
+    t_concurrente = 0
+    do i = 1, cant
+        sync all
+        call CPU_TIME(t_ini)
+        call RBGSlineal(res, d, ld, rd, term_ind, xini, tol)
+        sync all
+        call CPU_TIME(t_fin)
+        t_concurrente = t_concurrente + t_fin-t_ini
+    end do
 
     if (im_act == 1) then 
         !write(*, *) 'Resultado de Red-Black Gauss-Seidel'
-        do i = 1, im_tot
-            !call mostrarVector(res(:)[i])
-        end do
-        t_concurrente = t_fin-t_ini
-        write(*, *) 'Tiempo = ', t_concurrente
-        write(*, *) 'Optimización = ', t_normal/t_concurrente *100,'%'
+        ! do i = 1, im_tot
+        !     !call mostrarVector(res(:)[i])
+        ! end do
+        t_concurrente = t_concurrente /cant
+        write(*, *) 'Tiempo RBGS = ', t_concurrente
+        write(*, *) 'Optimización GS vs RBGS = ', t_normal/t_concurrente *100 - 100,'%'
+        write(*, *) 'Optimización Thomas vs RBGS= ', t_thomas/t_concurrente *100 - 100,'%'
     end if
     
     deallocate(res, d, ld, rd, term_ind, xini)

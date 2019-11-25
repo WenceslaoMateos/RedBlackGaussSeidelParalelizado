@@ -7,7 +7,7 @@ program main
     real(8), dimension(:), codimension[:], allocatable :: d, term_ind, xini, res, ld, rd
     real(8), dimension(:), allocatable :: d_local, term_local, xini_local, ld_local, rd_local, res1
     real(8) tol[*], t_ini, t_fin, t_normal, t_concurrente, t_resultado, t_thomas, error, t_trans, t_concurrente_tot
-    integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden[*], remanente, cant
+    integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden, remanente, cant
 
     im_act = this_image() ! Mi imagen
     im_tot = num_images() ! Cantidad total de imagenes
@@ -31,13 +31,12 @@ program main
         rd_local(orden) = 0.
         
         tam_divisiones = ceiling(real(orden) / real(im_tot))
-        ! Hay que propagar la cantidad de divisiones a todas las imagenes
-        ! Ademas se propaga el orden y la tolerancia
+        ! Hay que propagar la cantidad de divisiones y la tolerancia a todas las imagenes
         do i = 2, im_tot
             tam_divisiones[i] = tam_divisiones
-            orden[i] = orden
             tol[i]= tol
         end do
+
         t_normal = 0
         do i = 1, cant
             call cpu_time(t_ini)

@@ -16,12 +16,12 @@ program graficos
         write(2, *) "set logscale y 10"
         write(2, *) "set logscale x 10"
         write(2, *) "set title '", titulo,"'"
-        write(2, *) "set xlabel 'Tiempo'"
-        write(2, *) "set ylabel 'Orden'"
-        write(2, *) "plot '", archivo, "' using 2:1 title 'Gauss-Seidel' with lines,\"
-        write(2, *) " '", archivo, "' using 3:1 title 'Thomas' with lines,\"
-        write(2, *) " '", archivo, "' using 4:1 title 'RBGS' with lines,\"
-        write(2, *) " '", archivo, "' using 5:1 title 'RBGS + Burocracia' with lines"
+        write(2, *) "set xlabel 'Orden'"
+        write(2, *) "set ylabel 'Tiempo'"
+        write(2, *) "plot '", archivo, "' using 1:2 title 'Gauss-Seidel' with lines,\"
+        write(2, *) " '", archivo, "' using 1:3 title 'Thomas' with lines,\"
+        write(2, *) " '", archivo, "' using 1:4 title 'RBGS' with lines,\"
+        write(2, *) " '", archivo, "' using 1:5 title 'RBGS + Burocracia' with lines"
         call system('gnuplot -persist temporal.p')
         close(2, STATUS='DELETE')
     end subroutine plot

@@ -32,6 +32,7 @@ program main
         
         tam_divisiones = ceiling(real(orden) / real(im_tot))
         ! Hay que propagar la cantidad de divisiones a todas las imagenes
+        ! Ademas se propaga el orden y la tolerancia
         do i = 2, im_tot
             tam_divisiones[i] = tam_divisiones
             orden[i] = orden

@@ -31,11 +31,6 @@ program main
         rd_local(orden) = 0.
         
         tam_divisiones = ceiling(real(orden) / real(im_tot))
-        ! Hay que propagar la cantidad de divisiones y la tolerancia a todas las imagenes
-        do i = 2, im_tot
-            tam_divisiones[i] = tam_divisiones
-            tol[i]= tol
-        end do
 
         t_normal = 0
         do i = 1, cant
@@ -61,14 +56,21 @@ program main
         ! call mostrarVector(res1)
         write(*, '(A,F10.7)') 'Tiempo Thomas = ', t_thomas
         write(*, *)
-
     end if
     
+    ! Cada imagen se encarga de recuperar la tolerancia y el tam_divisiones
+    sync all
+    if (im_act /= 1) then
+        tam_divisiones = tam_divisiones[1]
+        tol = tol[1]
+    end if
+
     ! No funciona si no todas las imagenes tienen el mismo tam_divisiones
     sync all
     allocate(d(tam_divisiones)[*], term_ind(tam_divisiones)[*], xini(tam_divisiones)[*], &
         res(tam_divisiones)[*], ld(tam_divisiones)[*], rd(tam_divisiones)[*])
     sync all
+
     ! La imagen 1 se encarga de distribuir los datos
     if (im_act == 1) then
         call cpu_time(t_ini)

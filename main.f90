@@ -6,18 +6,20 @@ program main
     
     real(8), dimension(:), codimension[:], allocatable :: d, term_ind, xini, res, ld, rd
     real(8), dimension(:), allocatable :: d_local, term_local, xini_local, ld_local, rd_local, res1
-    real(8) tol, t_ini, t_fin, t_normal, t_concurrente, t_resultado, t_thomas, error, t_trans, t_concurrente_tot
-    integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden, remanente, cant
+    real(8) tol[*], t_ini, t_fin, t_normal, t_concurrente, t_resultado, t_thomas, error, t_trans, t_concurrente_tot
+    integer(4) tam_divisiones[*], im_act, im_tot, i, inicio, fin, orden[*], remanente, cant
 
     im_act = this_image() ! Mi imagen
     im_tot = num_images() ! Cantidad total de imagenes
 
-    tol = 1e-5
-    cant = 50
-    orden = 10000
+    cant = 50    
 
     ! La imagen 1 se encarga de la carga de datos
     if (im_act == 1) then
+		write (*, *) "Ingrese el orden:"
+        read(*, *) orden
+        write(*, *) "Ingrese la tolerancia:"
+        read(*, *) tol
         ! Estos son los unicos datos que se deben tocar para modificar el programa
         xini_local = generaCaso(orden)
         term_local = generaCaso(orden)
@@ -32,6 +34,8 @@ program main
         ! Hay que propagar la cantidad de divisiones a todas las imagenes
         do i = 2, im_tot
             tam_divisiones[i] = tam_divisiones
+            orden[i] = orden
+            tol[i]= tol
         end do
         t_normal = 0
         do i = 1, cant
@@ -59,7 +63,6 @@ program main
         write(*, *)
 
     end if
-    
     
     ! No funciona si no todas las imagenes tienen el mismo tam_divisiones
     sync all

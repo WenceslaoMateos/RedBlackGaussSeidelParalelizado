@@ -2,7 +2,6 @@ program main
     use RBGS
     use SELs
     use casosDinamicos
-    use omp_lib
     implicit none
     
     real(8), dimension(:), codimension[:], allocatable :: d, term_ind, xini, res, ld, rd
@@ -15,7 +14,7 @@ program main
 
     tol = 1e-5
     cant = 50
-    orden = 100000
+    orden = 10000
 
     ! La imagen 1 se encarga de la carga de datos
     if (im_act == 1) then

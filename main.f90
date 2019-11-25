@@ -40,8 +40,10 @@ program main
             t_normal = t_normal + t_fin-t_ini
         end do
         t_normal = t_normal/cant
-        ! write(*, *) 'Resultado de Gauss-Seidel'
-        ! call mostrarVector(res1)
+
+        open(unit=2, file='gauss-seidel.dat')
+        write(2, *) res1
+        close(2)
         write(*, '(A,F10.7)') 'Tiempo Gauss-Seidel = ', t_normal
 
         t_thomas = 0
@@ -52,10 +54,14 @@ program main
             t_thomas = t_thomas + t_fin-t_ini
         end do
         t_thomas = t_thomas/cant
-        ! write(*, *) 'Resultado de Thomas'
-        ! call mostrarVector(res1)
+
+        open(unit=2, file='thomas.dat')
+        write(2, *) res1
+        close(2)
         write(*, '(A,F10.7)') 'Tiempo Thomas = ', t_thomas
         write(*, *)
+
+        deallocate(res1)
     end if
     
     ! Cada imagen se encarga de recuperar la tolerancia y el tam_divisiones
@@ -132,10 +138,12 @@ program main
     end do
 
     if (im_act == 1) then 
-        ! write(*, *) 'Resultado de Red-Black Gauss-Seidel'
-        ! do i = 1, im_tot
-        !     call mostrarVector(res(:)[i])
-        ! end do
+        open(unit=2, file='rbgs.dat')
+        do i = 1, im_tot
+            write(2, *) res(:)[i]
+        end do
+        close(2)
+
         t_concurrente = t_concurrente /cant
         t_concurrente_tot = t_concurrente + t_trans
         write(*, '(A,F10.7)') 'Tiempo RBGS = ', t_concurrente

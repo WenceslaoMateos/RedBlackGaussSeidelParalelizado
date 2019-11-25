@@ -34,3 +34,6 @@ main
 Paralelismo
 .vscode
 gra
+gauss-seidel.dat
+rbgs.dat
+thomas.dat

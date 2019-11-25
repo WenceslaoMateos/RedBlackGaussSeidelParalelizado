@@ -2,6 +2,7 @@ program main
     use RBGS
     use SELs
     use casosDinamicos
+    use omp_lib
     implicit none
     
     real(8), dimension(:), codimension[:], allocatable :: d, term_ind, xini, res, ld, rd
@@ -14,7 +15,7 @@ program main
 
     tol = 1e-5
     cant = 50
-    orden = 10000
+    orden = 100000
 
     ! La imagen 1 se encarga de la carga de datos
     if (im_act == 1) then
@@ -48,7 +49,6 @@ program main
         t_thomas = 0
         do i = 1, cant
             call cpu_time(t_ini)
-            res1 = thomas(d_local, ld_local, rd_local, term_local)
             res1 = refinamiento_thomas(ld_local, d_local, rd_local, term_local, tol)
             call cpu_time(t_fin)
             t_thomas = t_thomas + t_fin-t_ini
@@ -109,11 +109,11 @@ program main
             term_ind(:)[i] = term_local(inicio:fin)
         end if
         
-        deallocate(d_local, term_local, xini_local, ld_local, rd_local)
         call cpu_time(t_fin)
-        
         t_trans = t_fin - t_ini
         write(*, '(A,F12.7)') 'Tiempo de transmision: ',t_trans
+
+        deallocate(d_local, term_local, xini_local, ld_local, rd_local)
     end if
 
     

@@ -86,7 +86,7 @@ contains
                 end if
             end if
 
-            error_local = errorAbsolutoV(res, xant, vNormaM)
+            error_local = errorAbsolutoV(res, xant)
             sync all
             e = maxCoarrayEscalar(error_local)
             cont = cont + 1
